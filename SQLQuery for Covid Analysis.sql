@@ -55,11 +55,34 @@ Group by location, population
 order by PercentagePopulationInfected Desc
 
 -- countries with highest death count per population
-Select location, population, MAX(cast (total_deaths as int)) as HighestDeathCount
+Select location, population, MAX(cast (total_deaths as int)) as Total_Deaths
 From coviddeaths
-where continent is not null
+where continent is not null and location not in ('World', 'Africa', 'Oceania', 'North America','Asia', 'European Union', 'International')
 Group by location, population
-order by HighestDeathCount Desc
+order by Total_Deaths Desc
+
+-- countries with highest death percentage per population
+Create View DeathPercentage (location, population, Total_Deaths) as
+Select location, population, MAX(cast (total_deaths as int)) as Total_Deaths
+From coviddeaths
+where continent is not null and location not in ('World', 'Africa', 'Oceania', 'North America','Asia', 'European Union', 'International')
+Group by location, population
+
+Select *
+From DeathPercentage
+
+
+
+---total death count by location
+Select location, SUM(cast(new_deaths as int)) as TotalDeathCount
+From CovidDeaths
+Where continent is not null 
+and location not in ('World', 'Africa', 'Oceania', 'North America','Asia', 'European Union', 'International')
+Group by location
+order by TotalDeathCount desc
+
+select *
+from DeathPercentage order by location asc
 
 -- continents with hieghest death count 
 select continent, Max(cast(total_deaths as int)) as ContinentsWithHighestCovidDeaths
@@ -146,16 +169,63 @@ select *, (RollingVaccination / Population)*100 as PopVsVacPercentage
 from PopvsVac
 
 
--- Creating view to store data for vizualization
-Create View PopVsVacPercentage AS
+-- Creating views for dashboards
+--continent death percentage 
+Create View ContinentsDeathPercent AS
+Select continent, SUM(cast(new_cases as float)) as total_cases, SUM(cast(new_deaths as int)) as total_deaths, 
+SUM(cast(new_deaths as int))/SUM(cast(New_Cases as float))*100 as DeathPercentage
+From CovidDeaths
+where continent is not null 
+group by continent
+--order by 1,2
+
+--covid infection percentage in the countries per population
+Create View PercentPopInfected AS
+Select date, Location, Population, MAX(cast(total_cases as float)) as total_Infection,  Max(cast(total_cases as float))/(population)*100 as PercentPopulationInfected
+From CovidDeaths
+where not location='World' and not location='Africa' and not location='Oceania' 
+and not location='North America' and not location='European Union' and not location='International'
+Group by Location, Population, date
+--order by location desc
+
+--^^^CONTINUE HERE!!!!!
+
+
+
+--vaccinated population 
+Create View VaccinatedPopulation AS
 select dea.continent, dea.location, dea.date, dea.population, vac.total_vaccinations
 from [covid vaccinations] vac
 join coviddeaths dea
 on dea.location = vac.location
 and dea.date = vac.date
-where dea.continent is not null;
+where dea.continent is not null
+--order by 2 desc;
+
+-- Highest death count per population
+Create View DeathCountPerPop AS
+select dea.location, dea.date, dea.population, vac.total_vaccinations, dea.total_deaths
+from [covid vaccinations] vac
+join coviddeaths dea
+on dea.location = vac.location
+and dea.date = vac.date
+where dea.continent is not null and dea.location not in ('World', 'Africa', 'Oceania', 'North America','Asia', 'European Union', 'International')
+or vac.location not in ('World', 'Africa', 'Oceania', 'North America','Asia', 'European Union', 'International')
+--order by 1 desc;
+
 
 --confirm new view created 
-Select *
-from PopVsVacPercentage
+select * 
+from ContinentsDeathPercent 
 
+Select *
+from PercentPopInfected
+
+select * 
+from  VaccinatedPopulation
+
+select * 
+from DeathCountPerPop
+
+--drop a view
+drop view DeathCountPerPop
