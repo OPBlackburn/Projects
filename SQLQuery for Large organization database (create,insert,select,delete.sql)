@@ -1,3 +1,122 @@
+--create a database for project portfolio\
+
+Create database [project portfolio]
+ containment = none
+ on  primary 
+( name = n'project portfolio', filename = n'c:\program files\microsoft sql server\mssql16.mssqlserver\mssql\data\project portfolio.mdf' , 
+size = 204800kb , maxsize = unlimited, filegrowth = 65536kb )
+ log on 
+( name = n'project portfolio_log', filename = n'c:\program files\microsoft sql server\mssql16.mssqlserver\mssql\data\project portfolio_log.ldf' , 
+size = 139264kb , maxsize = 2048gb , filegrowth = 65536kb )
+ with catalog_collation = database_default, ledger = off
+Go
+
+If (1 = fulltextserviceproperty('isfulltextinstalled'))
+Begin
+Exec [project portfolio].[dbo].[sp_fulltext_database] @action = 'enable'
+End
+Go
+
+Alter database [project portfolio] set ansi_null_default off 
+Go
+
+Alter database [project portfolio] set ansi_nulls off 
+Go
+
+Alter database [project portfolio] set ansi_padding off 
+Go
+
+Alter database [project portfolio] set ansi_warnings off 
+Go
+
+Alter database [project portfolio] set arithabort off 
+Go
+
+Alter database [project portfolio] set auto_close off 
+Go
+
+Alter database [project portfolio] set auto_shrink off 
+Go
+
+Alter database [project portfolio] set auto_update_statistics on 
+Go
+
+Alter database [project portfolio] set cursor_close_on_commit off 
+Go
+
+Alter database [project portfolio] set cursor_default  global 
+Go
+
+Alter database [project portfolio] set concat_null_yields_null off 
+Go
+
+Alter database [project portfolio] set numeric_roundabort off 
+Go
+
+Alter database [project portfolio] set quoted_identifier off 
+Go
+
+Alter database [project portfolio] set recursive_triggers off 
+Go
+
+Alter database [project portfolio] set  disable_broker 
+Go
+
+Alter database [project portfolio] set auto_update_statistics_async off 
+Go
+
+Alter database [project portfolio] set date_correlation_optimization off 
+Go
+
+Alter database [project portfolio] set trustworthy off 
+Go
+
+Alter database [project portfolio] set allow_snapshot_isolation off 
+Go
+
+Alter database [project portfolio] set parameterization simple 
+Go
+
+Alter database [project portfolio] set read_committed_snapshot off 
+Go
+
+Alter database [project portfolio] set honor_broker_priority off 
+Go
+
+Alter database [project portfolio] set recovery full 
+Go
+
+Alter database [project portfolio] set  multi_user 
+Go
+
+Alter database [project portfolio] set page_verify checksum  
+Go
+
+Alter database [project portfolio] set db_chaining off 
+Go
+
+Alter database [project portfolio] set filestream( non_transacted_access = off ) 
+Go
+
+Alter database [project portfolio] set target_recovery_time = 60 seconds 
+Go
+
+Alter database [project portfolio] set delayed_durability = disabled 
+Go
+
+Alter database [project portfolio] set accelerated_database_recovery = off  
+Go
+
+Alter database [project portfolio] set query_store = on
+Go
+
+Alter database [project portfolio] set query_store (operation_mode = read_write, cleanup_policy = (stale_query_threshold_days = 30), data_flush_interval_seconds = 900, interval_length_minutes = 60, max_storage_size_mb = 1000, query_capture_mode = auto, size_based_cleanup_mode = auto, max_plans_per_query = 200, wait_stats_capture_mode = on)
+Go
+
+Alter database [project portfolio] set  read_write 
+Go
+
+
 --creating tables
 CREATE TABLE REGIONS (
 region_id int Identity(1,1) Primary Key,
@@ -164,8 +283,12 @@ locations(location_id,street_address,postal_code,city,state_province,country_id)
 set identity_insert Locations OFF
 
 
+--turn on identity insert
 
---set identity_insert jobs ON
+set identity_insert jobs ON
+
+--now insert into table
+
 INSERT INTO jobs(job_id,job_title,min_salary,max_salary) VALUES (1,'Public 
 Accountant',4200.00,9000.00);
 INSERT INTO jobs(job_id,job_title,min_salary,max_salary) VALUES 
@@ -204,11 +327,17 @@ INSERT INTO jobs(job_id,job_title,min_salary,max_salary) VALUES (18,'Stock
 Clerk',2000.00,5000.00);
 INSERT INTO jobs(job_id,job_title,min_salary,max_salary) VALUES (19,'Stock 
 Manager',5500.00,8500.00);
---set identity_insert jobs OFF
+
+--turn off identity insert
+
+set identity_insert jobs OFF
+
+
+--turn on identity insert
+set identity_insert departments ON
 
 --insert data into departments
 
---set identity_insert departments ON
 INSERT INTO departments(department_id,department_name,location_id) VALUES 
 (1,'Administration',1700);
 INSERT INTO departments(department_id,department_name,location_id) VALUES 
@@ -231,12 +360,16 @@ INSERT INTO departments(department_id,department_name,location_id) VALUES
 (10,'Finance',1700);
 INSERT INTO departments(department_id,department_name,location_id) VALUES 
 (11,'Accounting',1700);
---set identity_insert departments OFF
+
+--turn off identity insert
+set identity_insert departments OFF
 
 
 --data for employees table 
 
---set identity_insert employees ON
+--turn on identity insert
+set identity_insert employees ON
+
 --select * from EMPLOYEES
 
 --delete from EMPLOYEES where last_name = 'king'
@@ -489,6 +622,8 @@ UPDATE EMPLOYEES set HIRE_DATE = '2020-10-16' where EMPLOYEE_ID = 192;
 delete from JOBS where JOB_ID=15; commit;
 delete from JOBS where JOB_ID=15; rollback;
 
+--confirm all data has been updated
+
 select *
 from JOBS where job_id = 17
 
@@ -512,4 +647,3 @@ from EMPLOYEES
 
 select *
 from dependents
-
